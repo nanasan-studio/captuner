@@ -121,6 +121,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply text-foreground bg-indigo-950;
+    @apply text-foreground bg-[#00005B];
+    background-image: url("/pattern.png");
+    background-repeat: repeat;
   }
 }

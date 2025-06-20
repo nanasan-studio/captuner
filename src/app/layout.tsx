@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   title: "Captuner 캡튜너",
   description: "글자 수 기반 자막 시간 / 프레임 계산기",
   icons: [{ rel: "icon", url: "/favicon.png" }],
+  openGraph: {
+    images: [
+      {
+        url: "/CaptunerOG.png",
+        width: 1200,
+        height: 630,
+        alt: "Captuner OG 이미지",
+      },
+    ],
+  },
 };
 
 const geist = Geist({
@@ -19,15 +29,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body
-        style={{
-          backgroundImage:
-            "url(https://openreplay.com/patterns/dot-pattern.png)",
-          backgroundRepeat: "repeat",
-        }}
-      >
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
