@@ -15,39 +15,27 @@ import { Card, CardContent } from "~/components/ui/card";
 import { SegmentedControl } from "~/components/ui/segmented-control";
 import CalculationResult from "./CalculationResult";
 import CaptunerLogo from "./CaptunerLogo";
+import LanguageSelector from "./LanguageSelector";
 import Link from "next/link";
+import type { Language } from "~/lib/i18n";
+import { translations, fpsOptions } from "~/lib/i18n";
 
-const SubtitleFrameCalculator = () => {
+const CaptionFrameCalculator = () => {
   const [text, setText] = useState("");
   const [timeUnit, setTimeUnit] = useState("frames"); // 'seconds' or 'frames'
   const [charTime, setCharTime] = useState(4); // 기본값: 4프레임
   const [fps, setFps] = useState(29.98);
   const [copiedFrame, setCopiedFrame] = useState(false);
   const [copiedTimecode, setCopiedTimecode] = useState(false);
+  const [language, setLanguage] = useState<Language>("en"); // 영어를 기본 언어로 설정
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const t = translations[language];
 
   // 컴포넌트 마운트 시 Textarea에 포커스
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
-
-  // FPS 옵션들 (프리미어 프로와 동일)
-  const fpsOptions = [
-    { value: 10.0, label: "10.00 프레임/초" },
-    { value: 12.0, label: "12.00 프레임/초" },
-    { value: 12.5, label: "12.50 프레임/초" },
-    { value: 15.0, label: "15.00 프레임/초" },
-    { value: 23.976, label: "23.976 프레임/초" },
-    { value: 24.0, label: "24.00 프레임/초" },
-    { value: 25.0, label: "25.00 프레임/초" },
-    { value: 29.97, label: "29.97 프레임/초" },
-    { value: 29.98, label: "29.98 프레임/초" },
-    { value: 30.0, label: "30.00 프레임/초" },
-    { value: 50.0, label: "50.00 프레임/초" },
-    { value: 59.94, label: "59.94 프레임/초" },
-    { value: 60.0, label: "60.00 프레임/초" },
-  ];
 
   // 계산 함수들
   const calculateFrames = () => {
@@ -122,18 +110,18 @@ const SubtitleFrameCalculator = () => {
 
   // Segmented Control 옵션
   const timeUnitOptions = [
-    { value: "frames", label: "프레임" },
-    { value: "seconds", label: "초" },
+    { value: "frames", label: t.frames },
+    { value: "seconds", label: t.seconds },
   ];
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col justify-center space-y-4 p-6">
       {/* 헤더 */}
       <div className="sm:items-left flex flex-col items-center space-y-2 sm:flex-row sm:justify-between sm:space-y-0">
-        <CaptunerLogo />
-        <p className="text-[#9999FF]/80 sm:text-left">
-          글자 수 기반 자막 시간 / 프레임 계산기
-        </p>
+        <div className="flex items-center gap-4">
+          <CaptunerLogo />
+        </div>
+        <p className="text-[#9999FF]/80 sm:text-left">{t.subtitle}</p>
       </div>
 
       {/* 계산 결과 카드 */}
@@ -163,7 +151,7 @@ const SubtitleFrameCalculator = () => {
                     className="w-20"
                   />
                   <span className="text-sm text-gray-700">
-                    {timeUnit === "seconds" ? "초" : "프레임"}
+                    {timeUnit === "seconds" ? t.seconds : t.frames}
                   </span>
                 </div>
               </div>
@@ -179,6 +167,7 @@ const SubtitleFrameCalculator = () => {
                 onCopy={copyToClipboard}
                 copiedFrame={copiedFrame}
                 copiedTimecode={copiedTimecode}
+                language={language}
               />
             </CardContent>
           </div>
@@ -193,19 +182,19 @@ const SubtitleFrameCalculator = () => {
               {/* 텍스트 입력 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="subtitle-text" className="text-base">
-                    자막 텍스트
+                  <Label htmlFor="caption-text" className="text-base">
+                    {t.captionText}
                   </Label>
                   <span className="text-sm text-gray-500">
-                    {text.length}글자
+                    {text.length} {t.characters}
                   </span>
                 </div>
                 <Textarea
                   ref={textareaRef}
-                  id="subtitle-text"
+                  id="caption-text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="자막 내용을 입력하세요..."
+                  placeholder={t.placeholder}
                   className="h-24 resize-none"
                 />
               </div>
@@ -213,7 +202,7 @@ const SubtitleFrameCalculator = () => {
               {/* FPS 설정 */}
               <div className="space-y-2">
                 <Label htmlFor="fps-select" className="text-base">
-                  FPS 설정
+                  {t.fpsSetting}
                 </Label>
                 <Select
                   value={fps.toString()}
@@ -223,7 +212,7 @@ const SubtitleFrameCalculator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {fpsOptions.map((option) => (
+                    {fpsOptions[language].map((option) => (
                       <SelectItem
                         key={option.value}
                         value={option.value.toString()}
@@ -238,17 +227,22 @@ const SubtitleFrameCalculator = () => {
           </div>
         </div>
       </Card>
-
-      <Link
-        href="https://nanasan.co.kr"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary/80 hover:text-primary/60 block cursor-pointer text-center"
-      >
-        © 2025, nanasan
-      </Link>
+      <div className="flex items-center justify-between">
+        <LanguageSelector
+          currentLanguage={language}
+          onLanguageChange={setLanguage}
+        />
+        <Link
+          href="https://nanasan.co.kr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary/80 hover:text-primary/60 block cursor-pointer"
+        >
+          {t.copyright}
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default SubtitleFrameCalculator;
+export default CaptionFrameCalculator;

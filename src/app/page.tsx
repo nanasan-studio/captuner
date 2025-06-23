@@ -1,5 +1,5 @@
-import SubtitleFrameCalculator from "~/components/SubtitleFrameCalculator";
+import CaptionFrameCalculator from "~/components/CaptionFrameCalculator";
 
 export default function HomePage() {
-  return <SubtitleFrameCalculator />;
+  return <CaptionFrameCalculator />;
 }

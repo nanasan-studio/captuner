@@ -5,7 +5,8 @@ import { Geist } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "Captuner 캡튜너",
-  description: "글자 수 기반 자막 시간 / 프레임 계산기",
+  description:
+    "Adobe Premiere Pro Caption Duration Calculator | 글자 수 기반 자막 시간 / 프레임 계산기",
   icons: [{ rel: "icon", url: "/favicon.png" }],
   openGraph: {
     images: [
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
         url: "/CaptunerOG.png",
         width: 1200,
         height: 630,
-        alt: "Captuner OG 이미지",
+        alt: "Captuner OG Image",
       },
     ],
   },

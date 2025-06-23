@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "~/components/ui/button";
 import { Copy, Check } from "lucide-react";
+import type { Language } from "~/lib/i18n";
+import { translations } from "~/lib/i18n";
 
 interface CalculationResultProps {
   text: string;
@@ -12,6 +14,7 @@ interface CalculationResultProps {
   onCopy: (value: string, type: "frame" | "timecode") => void;
   copiedFrame: boolean;
   copiedTimecode: boolean;
+  language: Language;
 }
 
 const CalculationResult: React.FC<CalculationResultProps> = ({
@@ -24,12 +27,16 @@ const CalculationResult: React.FC<CalculationResultProps> = ({
   onCopy,
   copiedFrame,
   copiedTimecode,
+  language,
 }) => {
+  const t = translations[language];
   const isFrameMode = timeUnit === "frames";
-  const displayValue = isFrameMode ? `${totalFrames}프레임` : timecode;
+  const displayValue = isFrameMode
+    ? `${totalFrames}${language === "ko" ? "프레임" : " frames"}`
+    : timecode;
   const calculationText = isFrameMode
-    ? `${text.length}글자 × ${charTime}프레임 = ${totalFrames}프레임`
-    : `${text.length}글자 × ${charTime}초 = ${totalSeconds.toFixed(2)}초`;
+    ? `${text.length}${language === "ko" ? "글자" : " chars"} × ${charTime}${language === "ko" ? "프레임" : " frames"} = ${totalFrames}${language === "ko" ? "프레임" : " frames"}`
+    : `${text.length}${language === "ko" ? "글자" : " chars"} × ${charTime}${language === "ko" ? "초" : "s"} = ${totalSeconds.toFixed(2)}${language === "ko" ? "초" : "s"}`;
   const copyValue = isFrameMode ? totalFrames.toString() : timecode;
   const copyType = isFrameMode ? "frame" : "timecode";
   const isCopied = isFrameMode ? copiedFrame : copiedTimecode;
@@ -55,12 +62,12 @@ const CalculationResult: React.FC<CalculationResultProps> = ({
         {isCopied ? (
           <>
             <Check className="h-4 w-4" />
-            복사됨
+            {t.copied}
           </>
         ) : (
           <>
             <Copy className="h-4 w-4" />
-            복사
+            {t.copy}
           </>
         )}
       </Button>
