@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Captuner 캡튜너",
@@ -30,6 +31,21 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-QN14YZ9SW3"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QN14YZ9SW3');
+          `}
+        </Script>
+      </head>
       <body>{children}</body>
     </html>
   );
