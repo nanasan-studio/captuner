@@ -20,7 +20,55 @@ import Link from "next/link";
 import type { Language } from "~/lib/i18n";
 import { translations, fpsOptions } from "~/lib/i18n";
 
+interface Settings {
+  timeUnit: string;
+  charTime: number;
+  fps: number;
+  language: Language;
+}
+
 const CaptionFrameCalculator = () => {
+  // localStorage에서 설정을 불러오는 함수
+  const loadSettings = (): Settings | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const saved = localStorage.getItem("captuner-settings");
+      if (!saved) return null;
+
+      const parsed = JSON.parse(saved) as unknown;
+
+      // 타입 가드: Settings 객체인지 확인
+      if (
+        typeof parsed === "object" &&
+        parsed !== null &&
+        "timeUnit" in parsed &&
+        "charTime" in parsed &&
+        "fps" in parsed &&
+        "language" in parsed
+      ) {
+        return parsed as Settings;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("설정 로드 실패:", error);
+      return null;
+    }
+  };
+
+  // 설정을 localStorage에 저장하는 함수
+  const saveSettings = (settings: Settings) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      localStorage.setItem("captuner-settings", JSON.stringify(settings));
+    } catch (error) {
+      console.error("설정 저장 실패:", error);
+    }
+  };
+
+  // 초기 상태는 기본값으로 설정 (SSR과 일치)
   const [text, setText] = useState("");
   const [timeUnit, setTimeUnit] = useState("frames"); // 'seconds' or 'frames'
   const [charTime, setCharTime] = useState(4); // 기본값: 4프레임
@@ -28,14 +76,39 @@ const CaptionFrameCalculator = () => {
   const [copiedFrame, setCopiedFrame] = useState(false);
   const [copiedTimecode, setCopiedTimecode] = useState(false);
   const [language, setLanguage] = useState<Language>("en"); // 영어를 기본 언어로 설정
+  const [isClient, setIsClient] = useState(false); // 클라이언트 렌더링 여부
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const t = translations[language];
 
-  // 컴포넌트 마운트 시 Textarea에 포커스
+  // 클라이언트에서만 실행되는 useEffect
   useEffect(() => {
+    setIsClient(true);
+
+    // 저장된 설정 불러오기
+    const savedSettings = loadSettings();
+    if (savedSettings) {
+      setTimeUnit(savedSettings.timeUnit);
+      setCharTime(savedSettings.charTime);
+      setFps(savedSettings.fps);
+      setLanguage(savedSettings.language);
+    }
+
+    // Textarea에 포커스
     textareaRef.current?.focus();
   }, []);
+
+  // 설정이 변경될 때마다 localStorage에 저장 (클라이언트에서만)
+  useEffect(() => {
+    if (!isClient) return;
+
+    saveSettings({
+      timeUnit,
+      charTime,
+      fps,
+      language,
+    });
+  }, [timeUnit, charTime, fps, language, isClient]);
 
   // 계산 함수들
   const calculateFrames = () => {
